@@ -1,5 +1,5 @@
 # HR-analytics
-This data project is to analyze why employee leave company and predict if they will leave. 14,999 observations and 10 variables. It is binary classification problem. 
+This data project is to analyze why employee leave company and predict if they will leave. 14,999 observations and 10 variables. It is binary classification problem, implemented in R. 
 * Variables: 
 response: Employess left or not, 0 and 1 (left)
 predictors (numerical variables): 
