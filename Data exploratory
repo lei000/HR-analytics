@@ -1,0 +1,64 @@
+# data input
+hr=read.csv("HR_comma_sep.csv")
+head(hr)
+dim(hr)
+summary(hr)
+sum(is.na.data.frame(hr)) #no missing value 
+
+# change format
+hr$promotion_last_5years=as.factor(hr$promotion_last_5years)
+hr$Work_accident=as.factor(hr$Work_accident)
+hr$left=as.factor(hr$left)
+names(hr)[names(hr) == 'sales'] <- 'departments'
+
+# data exploratory 
+attach(hr)
+table(left)
+hist(satisfaction_level)
+hist(last_evaluation)
+hist(number_project)
+hist(average_montly_hours)
+hist(time_spend_company)
+barplot(table(Work_accident))
+barplot(table(Work_accident), main="work accident")
+barplot(table(promotion_last_5years), main="promotion_last_5years")
+barplot(table(sales), main="sales")
+barplot(table(salary), main="salary")
+
+#Work accident vs left
+counts<-table(Work_accident,left)
+round(counts/rowSums(counts),2)
+plot(left~Work_accident,main="Work Accident vs Left", col=c("green","red"))
+
+#salary vs left
+counts<-table(salary,left)
+round(counts/rowSums(counts),2)
+plot(left~salary,main="salary vs Left", col=c("green","red"))
+
+#promotion vs left 
+counts<-table(promotion_last_5years,left)
+round(counts/rowSums(counts),2)
+plot(left~promotion_last_5years, main="promotion_last_5years vs Left", col=c("green","red"))
+
+#department vs left
+counts<-table(sales,left)
+round(counts/rowSums(counts),2)
+plot(left~sales, main="sales vs Left", col=c("green","red"))
+
+# numerical variables vs left
+plot(left, time_spend_company, main="Left and Time Spent With Company",col=c("green","red"))
+plot(left, satisfaction_level, main="Left and satisfaction_level",col=c("green","red"))
+plot(left, last_evaluation , main="Left and last_evaluation",col=c("green","red"))
+plot(left, average_montly_hours, main="Left and average_montly_hours",col=c("green","red"))
+plot(left, number_project, main="Left and number_project",col=c("green","red"))
+
+#correlation between variables
+library(corrplot)
+hr1<-hr
+hr1$Work_accident<-as.integer(hr$Work_accident)
+hr1$left <-as.integer(hr$left)
+hr1$promotion_last_5years <-as.integer(hr$promotion_last_5years)
+hr1$sales <-as.integer(hr$sales)
+hr1$salary <-as.integer(hr$salary)
+hr_cor<-cor(hr1)
+corrplot(hr_cor, method="circle")
