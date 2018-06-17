@@ -1,0 +1,13 @@
+# data split
+set.seed(201712)
+library(caTools)
+split<-sample.split(hr$left,SplitRatio=0.70)
+train<-subset(hr,split==TRUE)
+test<-subset(hr,split==FALSE)
+table(train$left)
+table(test$left)
+
+# logistic regression
+log_reg<-glm(left~., data=train, family="binomial")
+summary(log_reg)
+log_reg_predict<-predict(log_reg, test[,-7], type="response")
