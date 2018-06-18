@@ -1,0 +1,16 @@
+# tree model 
+library (tree)
+test_x=test[, -7]
+test_y=test[, 7]
+tree.hr=tree(left~., train)
+tree.pred=predict(tree.hr, test_x, type="class")
+table(tree.pred, test_y)
+
+# tree pruning
+cv.hr=cv.tree(tree.hr, FUN=prune.misclass)
+prune.hr=prune.misclass(tree.hr, best=12)
+par(mfrow=c(1,1))
+plot(prune.hr)
+text(prune.hr, pretty=0)
+
+tree.pred=predict(prune.hr, test_x)
