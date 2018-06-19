@@ -1,0 +1,15 @@
+#random forest
+library(MASS)
+library(randomForest)
+set.seed(201712)
+
+bg.hr=randomForest(left~., data=train, mtry=9, importance=TRUE)
+bg_y=predict(bg.hr, test_x)
+table(bg.y, test_y)
+importance(bg.hr)
+varImpPlot(bg.hr)
+
+rf.hr=randomForest(left~., data=train, mtry=3, importance=TRUE)
+tou=tuneRF(train[, -7], train$left, stepFactor=0.5, plot=TRUE, ntreeTry=500, trace=TRUE, improve=0.5)
+rf_y=predict(rf.hr, test_x)
+table(rf_y, test_y)
