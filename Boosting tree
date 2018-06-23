@@ -1,0 +1,25 @@
+#boosting 
+library(gbm)
+#library(adabag)
+boost.hr<-gbm(left~.,data=train,shrinkage=0.1, distribution="bernoulli", n.trees=5000,interaction.depth=1, 
+              train.fraction=0.5)
+
+bestTree = gbm.perf(boost.hr)
+
+pred.boost<-predict(boost.hr,newdata=test[,-7],n.trees=bestTree,type="response")
+
+pred.boost
+best.iter = gbm.perf(boost.hr, method="OOB")
+table(tree.pred, test_y)
+
+library(caret)
+fitControl <- trainControl(method = "cv", number = 10)
+gbmFit1 <- train(left ~ ., data = train, method = "gbm", trControl = fitControl,verbose = FALSE)
+
+gbm_pred=predict(gbmFit1, test[, -7])
+
+gbm_ITV1 <- predict(gbmFit1, test[, -7],type= "prob")[, 2]
+pred=prediction(gbm_ITV1, test$left)
+perf=performance(pred, "tpr", "fpr")
+plot(perf, colorize = TRUE, lwd=3, main="ROC curve, boosting")
+abline(a=0, b=1)
