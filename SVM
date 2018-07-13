@@ -1,0 +1,70 @@
+#svm
+library(e1071)
+set.seed(201712)
+# linear kernel
+svmfit=svm(left~., data=train, kernel="linear", cost=10, scale=TRUE)
+tune.lm=tune(svm, left~., data=train, kernel="linear", ranges=list(cost=c(0.001, 0.01, 0.1, 1, 10)), scale=TRUE)
+summary(tune.lm)
+bestmod=tune.lm$best.model
+summary(bestmod)
+
+# train predict
+train_pred=predict(bestmod, train[, -7], decision.values=TRUE)
+train_prob=attr(train_pred,"decision.values")
+train_class=predict(bestmod, train[, -7])
+table(train_class, train[, 7])
+
+#roc curve
+pred_train=prediction(train_prob, train$left)
+perf_train=performance(pred_train, "tpr", "fpr")
+par(new=TRUE)
+plot(perf_train, colorize = TRUE, lwd=3, main="ROC curve, SVM linear train")
+abline(a=0, b=1)
+
+
+# test predict
+test_pred=predict(bestmod, test[, -7], decision.values=TRUE)
+test_prob=attr(test_pred,"decision.values")
+test_class=predict(bestmod, test[,-7])
+table(test_class, test[,7])
+
+#roc curve
+pred_test=prediction(test_prob, test$left)
+perf_test=performance(pred_test, "tpr", "fpr")
+plot(perf_test,  main="ROC curve, SVM linear test")
+abline(a=0, b=1)
+
+#radial kernel
+tune.out=tune(svm, left~., data=train, kernel="radial", ranges=list(cost=c(0.001, 0.01, 0.1, 1, 10), gamma=c(0.5, 1, 2, 3, 4)), scale=TRUE)
+summary(tune.out)
+bestmod=tune.out$best.model
+summary(bestmod)
+
+# train predict
+train_pred=predict(bestmod, train[, -7], decision.values=TRUE)
+train_prob=attr(train_pred,"decision.values")
+train_class=predict(bestmod, train[, -7])
+table(train_class, train[, 7])
+
+#roc curve
+pred_train=prediction(train_prob, train$left)
+perf_train=performance(pred_train, "tpr", "fpr")
+plot(perf_train, main="ROC curve, SVM kernal train")
+abline(a=0, b=1)
+
+
+# test predict
+test_pred=predict(bestmod, test[, -7], decision.values=TRUE)
+test_prob=attr(test_pred,"decision.values")
+test_class=predict(bestmod, test[,-7])
+table(test_class, test[,7])
+# roc curve
+pred_test=prediction(test_prob, test$left)
+perf_test=performance(pred_test, "tpr", "fpr")
+plot(perf_test, main="ROC curve, SVM kernel test")
+abline(a=0, b=1)
+
+var_im <- varImp(svmfit, scale = FALSE)
+
+library(ROCR)
+predob=prediction(yped, test[,7])
