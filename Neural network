@@ -1,0 +1,68 @@
+#nerual network
+library(neuralnet)
+library(nnet)
+#nn <- neuralnet(left~satisfaction_level+last_evaluation+number_project+average_montly_hours+time_spend_company+
+#                Work_accident+promotion_last_5years+sales+salary, data=train, hidden=2, err.fct="ce",linear.output=FALSE)
+train.nnet<-nnet(left~., data=train, size=20, decay=0.5, maxit=500)
+
+#train 
+train_Class<-predict(train.nnet,train[, -7])
+table(train_class, train[,7])
+
+train_prob<-predict(train.nnet,train[, -7], decision.value=TRUE)
+pred_train=prediction(train_prob, train$left)
+perf_train=performance(pred_train, "tpr", "fpr")
+plot(perf_train, main="ROC curve, Neural network train")
+abline(a=0, b=1)
+
+perf_train_auc=performance(pred_train, "auc")
+perf_train_auc@y.values
+
+#test
+test.nnet<-predict(train.nnet,test[, -7], type="class")
+table(test.nnet, test$left)
+
+
+test.prob<-predict(train.nnet,test[, -7], decision.value=TRUE)
+pred_test=prediction(test_prob, test$left)
+perf_test=performance(pred_test, "tpr", "fpr")
+plot(perf_test, main="ROC curve, Neural network test")
+abline(a=0, b=1)
+
+attributes(perf_test)$alpha.values[[1]][1] <- 1
+attributes(perf_test)$alpha.values[[1]]
+
+perf_test_auc=performance(pred_test, "auc")
+perf_test_auc@y.values
+
+library(NeuralNetTools)
+plotnet(train.nnet)
+
+var_im=Importance(train.nnet, train, method="sensv")
+
+NN = neuralnet(left~satisfaction_level+last_evaluation+number_project+average_montly_hours+time_spend_company+
+                 Work_accident+promotion_last_5years+departments+salary, data=train, hidden = 3 )
+
+hr2=cbind(hr[, c(1, 2, 6, 7, 8, 9, 10)], as.data.frame(lapply(hr[, c(3, 4, 5)], function(col){(col-min(col))/(max(col)-min(col))})))
+
+
+library(caret)
+set.seed(201712)
+levels(train$left) <- make.names(levels(factor(train$left)))
+fitControl <- trainControl(method = "cv", 
+                           number = 10, 
+                           classProbs = TRUE, 
+                           summaryFunction = twoClassSummary)
+
+nnetGrid <-  expand.grid(size = c(5, 10, 15, 20, 25, 30),
+                         decay = c(0.001, 0.01, 0.1, 0.5))
+
+nnetFit <- train(left~ ., 
+                 data = train,
+                 method = "nnet",
+                 metric = "ROC",
+                 trControl = fitControl,
+                 tuneGrid = nnetGrid,
+                 verbose = FALSE)
+plot(nnetFit)
+nnetFit$bestTune
